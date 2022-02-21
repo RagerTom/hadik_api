@@ -10,26 +10,47 @@ namespace hadik_api.Controllers
     public class HadikController : ControllerBase
     {
 
-        private static List<Hadik> hadikData = new List<Hadik>
+       
+        private readonly DataContext _context;
+
+        public HadikController(DataContext context)
         {
-           
-        };
+            _context = context;
+        }
+
         [HttpGet]
-        [Route("GetHadikData")]
+     
         public async Task<ActionResult<List<Hadik>>> GetHadikData()
         {
 
+            return Ok(await _context.HadikSavedData.ToListAsync());
+        }
 
-            return Ok(hadikData);
+        [HttpDelete]
+      
+        public async Task<ActionResult<List<Hadik>>> DeleteHadikData()
+        {
+            var rows = from o in _context.HadikSavedData
+                       select o;
+            foreach (var row in rows)
+            {
+                _context.HadikSavedData.Remove(row);
+            }
+            await _context.SaveChangesAsync();
+
+            return Ok(await _context.HadikSavedData.ToListAsync());
         }
 
         [HttpPost]
-        [Route("PostHadikData")]
-        public async Task<ActionResult<List<Hadik>>> AddhadikData(Hadik api)
+
+        public async Task<ActionResult<List<Hadik>>> addHadikData(Hadik request)
         {
 
-            hadikData.Insert(0, api);
-            return Ok(hadikData);
+
+            _context.HadikSavedData.Add(request);
+            await _context.SaveChangesAsync();
+
+            return Ok(await _context.HadikSavedData.ToListAsync());
         }
-    }   
+    }
 }
